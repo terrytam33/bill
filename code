@@ -1,0 +1,234 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+void main() {
+  runApp(const ExpenseTrackerApp());
+}
+
+class ExpenseTrackerApp extends StatelessWidget {
+  const ExpenseTrackerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Money Tracker',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        useMaterial3: true,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final List<Transaction> transactions = [];
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  
+  double get totalBalance => transactions.fold(
+    0,
+    (sum, transaction) => sum + (transaction.isIncome ? transaction.amount : -transaction.amount),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Money Tracker'),
+      ),
+      body: Column(
+        children: [
+          // Balance Card
+          Card(
+            margin: const EdgeInsets.all(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    'Current Balance',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    '\$${totalBalance.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: totalBalance >= 0 ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Transaction List
+          Expanded(
+            child: ListView.builder(
+              itemCount: transactions.length,
+              itemBuilder: (context, index) {
+                final transaction = transactions[index];
+                return TransactionCard(transaction: transaction);
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddTransactionDialog(context),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddTransactionDialog(BuildContext context) {
+    bool isIncome = true;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Add Transaction'),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Income/Expense Toggle
+                    SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(
+                          value: true,
+                          label: Text('Income'),
+                          icon: Icon(Icons.add),
+                        ),
+                        ButtonSegment(
+                          value: false,
+                          label: Text('Expense'),
+                          icon: Icon(Icons.remove),
+                        ),
+                      ],
+                      selected: {isIncome},
+                      onSelectionChanged: (Set<bool> newSelection) {
+                        setState(() {
+                          isIncome = newSelection.first;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Amount Field
+                    TextFormField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Amount',
+                        prefixText: '\$',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter an amount';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Please enter a valid number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Description Field
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        transactions.add(Transaction(
+                          amount: double.parse(_amountController.text),
+                          description: _descriptionController.text,
+                          date: DateTime.now(),
+                          isIncome: isIncome,
+                        ));
+                        _amountController.clear();
+                        _descriptionController.clear();
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class TransactionCard extends StatelessWidget {
+  final Transaction transaction;
+
+  const TransactionCard({super.key, required this.transaction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: Icon(
+          transaction.isIncome ? Icons.add_circle : Icons.remove_circle,
+          color: transaction.isIncome ? Colors.green : Colors.red,
+        ),
+        title: Text(transaction.description),
+        subtitle: Text(DateFormat('MMM dd, yyyy').format(transaction.date)),
+        trailing: Text(
+          '\$${transaction.amount.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: transaction.isIncome ? Colors.green : Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Transaction {
+  final double amount;
+  final String description;
+  final DateTime date;
+  final bool isIncome;
+
+  Transaction({
+    required this.amount,
+    required this.description,
+    required this.date,
+    required this.isIncome,
+  });
+}

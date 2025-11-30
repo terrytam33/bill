@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Track your expenses by category">
+    <meta name="theme-color" content="#667eea">
+    <title>Financial Management App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Financial Manager</h1>
+            <p class="subtitle">Track your expenses by category</p>
+        </header>
+
+        <div class="expense-input-section">
+            <h2>Add Expense</h2>
+            <div class="input-group">
+                <input type="number" id="amountInput" placeholder="Enter amount" min="0" step="0.01">
+                <select id="categorySelect">
+                    <option value="">Select category</option>
+                    <option value="food">🍔 Food</option>
+                    <option value="transportation">🚗 Transportation</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="bills">💳 Bills</option>
+                    <option value="healthcare">🏥 Healthcare</option>
+                    <option value="education">📚 Education</option>
+                    <option value="other">📦 Other</option>
+                </select>
+                <button id="addExpenseBtn" class="btn-primary">Add Expense</button>
+            </div>
+        </div>
+
+        <div class="quick-add-section">
+            <h2>Quick Add</h2>
+            <p class="quick-add-subtitle">Click to quickly add expenses</p>
+            <div class="category-buttons">
+                <button class="category-btn" data-category="food">
+                    <span class="icon">🍔</span>
+                    <span class="label">Food</span>
+                </button>
+                <button class="category-btn" data-category="transportation">
+                    <span class="icon">🚗</span>
+                    <span class="label">Transportation</span>
+                </button>
+                <button class="category-btn" data-category="entertainment">
+                    <span class="icon">🎬</span>
+                    <span class="label">Entertainment</span>
+                </button>
+                <button class="category-btn" data-category="shopping">
+                    <span class="icon">🛍️</span>
+                    <span class="label">Shopping</span>
+                </button>
+                <button class="category-btn" data-category="bills">
+                    <span class="icon">💳</span>
+                    <span class="label">Bills</span>
+                </button>
+                <button class="category-btn" data-category="healthcare">
+                    <span class="icon">🏥</span>
+                    <span class="label">Healthcare</span>
+                </button>
+                <button class="category-btn" data-category="education">
+                    <span class="icon">📚</span>
+                    <span class="label">Education</span>
+                </button>
+                <button class="category-btn" data-category="other">
+                    <span class="icon">📦</span>
+                    <span class="label">Other</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <h2>Expense Summary</h2>
+            <div class="total-display">
+                <div class="total-card">
+                    <span class="total-label">Total Expenses</span>
+                    <span class="total-amount" id="totalAmount">$0.00</span>
+                </div>
+            </div>
+            <div class="category-summary" id="categorySummary">
+                <!-- Category summaries will be generated here -->
+            </div>
+        </div>
+
+        <div class="expense-history-section">
+            <h2>Recent Expenses</h2>
+            <div class="expense-list" id="expenseList">
+                <p class="empty-message">No expenses yet. Start tracking your spending!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for quick amount input -->
+    <div id="amountModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalCategoryName">Enter Amount</h3>
+            <input type="number" id="quickAmountInput" placeholder="Enter amount" min="0" step="0.01" autofocus>
+            <button id="confirmQuickAdd" class="btn-primary">Add</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
